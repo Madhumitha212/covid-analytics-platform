@@ -3,10 +3,7 @@ from pyspark.sql.functions import *
 
 spark = SparkSession.builder \
     .appName("COVID Infection Rate Analysis") \
-    .master("local[*]") \
-    .config("spark.driver.memory", "4g") \
-    .config("spark.executor.memory", "4g") \
-    .getOrCreate()
+    .getOrCreate()\
 
 # HDFS paths
 staging_path = "hdfs://localhost:9000/data/covid/staging/"
@@ -38,6 +35,38 @@ top_10.write.mode("overwrite")\
     .parquet(analytics_path + "top_10_countries_infection_rate")
 
 top_10.show()
+
+
+#WHO region infection ranking
+covid_clean_df = spark.read.parquet(staging_path+"covid_19_clean_complete.parquet")
+
+who_mapping = covid_clean_df.select(
+    "Country/Region",
+    "WHO Region"
+)
+
+joined_df = world_df.join(
+    who_mapping,
+    on="Country/Region",
+    how="inner"
+)
+
+who_rank= joined_df.groupBy("WHO Region").agg(
+    sum("TotalCases").alias("Total_Cases")
+    sum("Population").alias("Total_Population")
+)
+
+who_rank = who_rank.withColumn(
+    "Confirmed Cases",
+    round((col("Total_Cases")/col("Total_Population")*1000),2)
+)
+
+who_rank = who_rank.orderBy("Confirmed Cases").desc()
+
+who_rank.show()
+
+
+
 
 
 
