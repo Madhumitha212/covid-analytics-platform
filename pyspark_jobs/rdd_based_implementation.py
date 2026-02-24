@@ -1,3 +1,13 @@
+# Task 8: RDD-Based Implementation
+
+# Calculate total confirmed per country.
+# Calculate total deaths per country.
+# Compute death percentage using reduceByKey.
+# Compare RDD performance vs DataFrame.
+# Explain:
+#  1.Why reduceByKey is preferred over groupByKey
+#  2.When RDD should be avoided
+
 from pyspark.sql import SparkSession
 import time
 
