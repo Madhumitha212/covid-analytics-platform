@@ -1,10 +1,21 @@
+# Task 2: Data Ingestion & Optimization
+#  1.Read all raw CSV files from HDFS.
+#  2.Apply proper schema instead of inferSchema.
+#  3.Handle null values.
+#  4.Convert raw CSV files into Parquet format.
+#  5.Store them in /data/covid/staging.
+#  6.Compare CSV vs Parquet:
+#  -File size
+#  -Read performance
+#  -Execution plan
+
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 
 spark = SparkSession.builder \
     .appName("COVID Analytics") \
-    .master("yarn") \
     .getOrCreate()
+spark.sparkContext.setLogLevel("ERROR")
 
 country_latest_schema = StructType([
     StructField("Country/Region", StringType(), True),
