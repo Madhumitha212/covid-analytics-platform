@@ -1,3 +1,10 @@
+# Task 5: Recovery Efficiency
+
+# Recovered percentage per country.
+# 7-day rolling recovery average (Window function).
+# Country with fastest recovery growth.
+# Peak recovery day per country.
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.window import Window
@@ -20,12 +27,17 @@ recovery_df = world_df.withColumn(
     round((col("TotalRecovered") / col("TotalCases")) * 100, 2)
 )
 
-recovery_df.select(
+final_df = recovery_df.select(
     "Country/Region",
     "Recovery_Percentage"
-).show()
+)
 
-# 2.7-day rolling recovery average (Window function).
+final_df.write.mode("overwrite") \
+    .parquet(analytics_path + "recovered_percentage_per_country.parquet")
+
+final_df.show()
+
+# 2.7-day rolling recovery average.
 day_df = spark.read.parquet(staging_path + "day_wise.parquet")
 
 windowSpec = Window.orderBy("Date").rowsBetween(-6,0)
@@ -33,6 +45,10 @@ windowSpec = Window.orderBy("Date").rowsBetween(-6,0)
 roll_df = day_df.withColumn(
     "7_Day_Rolling_Average",round(avg(col("Recovered")).over(windowSpec),2)
 ).select("Date", "Recovered","7_Day_Rolling_Average")
+
+roll_df.write.mode("overwrite") \
+    .parquet(analytics_path + "7_day_rolling_average.parquet")
+
 roll_df.show()
 
 #Country with fastest recovery growth.
@@ -55,9 +71,14 @@ recovery_growth = recovery_df.withColumn("Recovery_growth",
 
 recovery_growth = recovery_growth.filter(col("Confirmed") > 1000)
 
-recovery_growth.orderBy(col("Recovery_growth").desc()).select("Date","Country/Region",
+recovery_growth = recovery_growth.orderBy(col("Recovery_growth").desc()).select("Date","Country/Region",
                                             "Recovery_percentage","Previous_recovery"
-                                            ,"Recovery_growth").show(1)
+                                            ,"Recovery_growth")
+
+recovery_growth.write.mode("overwrite") \
+    .parquet(analytics_path + "country_fastest_recovery_growth.parquet")
+
+recovery_growth.show()
 
 #Peak recovery day per country.
 peak_window = Window.partitionBy("Country/Region") \
@@ -71,5 +92,7 @@ peak_df = recovery_growth.withColumn(
 peak_recovery_day = peak_df.filter(col("rank") == 1) \
     .select("Country/Region", "Date", "Recovery_growth")
 
+peak_recovery_day.write.mode("overwrite") \
+    .parquet(analytics_path + "peak_recovery_day.parquet")
 
 peak_recovery_day.show()
