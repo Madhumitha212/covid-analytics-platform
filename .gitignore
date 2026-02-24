@@ -1,0 +1,14 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Spark temporary files
+metastore_db/
+spark-warehouse/
