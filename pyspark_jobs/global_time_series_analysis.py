@@ -1,3 +1,10 @@
+# Task 6: Global Time-Series Analysis
+
+# Global daily average new cases.
+# Detect spike days using Z-score.
+# Identify peak death date globally.
+# Month-over-Month death growth rate.
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.window import Window
