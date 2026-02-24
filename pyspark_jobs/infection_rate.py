@@ -1,9 +1,17 @@
+# Task 4: Infection Rate Analysis
+
+# Confirmed cases per 1000 population.
+# Active cases per 1000 population.
+# Top 10 countries by infection rate.
+# WHO region infection ranking.
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 
 spark = SparkSession.builder \
     .appName("COVID Infection Rate Analysis") \
-    .getOrCreate()\
+    .getOrCreate()
+spark.sparkContext.setLogLevel("ERROR")
 
 # HDFS paths
 staging_path = "hdfs://localhost:9000/data/covid/staging/"
@@ -24,6 +32,7 @@ confirmed_cases = world_df.withColumn(
 
 confirmed_cases.write.mode("overwrite")\
     .parquet(analytics_path + "Confirmed_active_per_1000.parquet")
+confirmed_cases.show()
 
 #Top 10 countries by infection rate
 
@@ -32,7 +41,7 @@ top_10 = confirmed_cases.orderBy(
 ).limit(10)
 
 top_10.write.mode("overwrite")\
-    .parquet(analytics_path + "top_10_countries_infection_rate")
+    .parquet(analytics_path + "top_10_countries_infection_rate.parquet")
 
 top_10.show()
 
@@ -52,7 +61,7 @@ joined_df = world_df.join(
 )
 
 who_rank= joined_df.groupBy("WHO Region").agg(
-    sum("TotalCases").alias("Total_Cases")
+    sum("TotalCases").alias("Total_Cases"),
     sum("Population").alias("Total_Population")
 )
 
@@ -62,6 +71,8 @@ who_rank = who_rank.withColumn(
 )
 
 who_rank = who_rank.orderBy("Confirmed Cases").desc()
+who_rank.write.mode("overwrite")\
+    .parquet(analytics_path + "WHO_region_ranking.parquet")
 
 who_rank.show()
 
