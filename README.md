@@ -16,22 +16,6 @@ All data ingestion, processing, optimization, and analytics are performed in a p
 
 ---
 
-## Architecture
-
-Raw CSV Data  
-⬇  
-HDFS (/data/covid/raw)  
-⬇  
-Spark ETL (Schema + Cleaning)  
-⬇  
-Parquet (Staging Layer)  
-⬇  
-Analytics & Aggregations  
-⬇  
-Optimized Outputs (Parquet)
-
----
-
 ## Tech Stack
 
 - Hadoop (HDFS + YARN)
@@ -46,12 +30,12 @@ Optimized Outputs (Parquet)
 
 ## HDFS Directory Structure
 
-/data/covid/raw
-/data/covid/staging
-/data/covid/curated
-/data/covid/analytics
+- /data/covid/raw
+- /data/covid/staging
+- /data/covid/curated
+- /data/covid/analytics
 
---
+---
 
 ## Dataset Source
 
@@ -207,20 +191,17 @@ Parquet significantly reduced I/O and improved execution time.
 ---
 
 ## Project Structure
-
-
+```
 covid-19-analytics-platform/
-│
-├── pyspark_jobs/
-├── scripts/
-├── datasets/
-├── README.md
-└── .gitignore
+|--pyspark_jobs/
+|-- scripts/
+|-- datasets/
+|-- README.md
+|-- .gitignore
+|-- requirements.csv
 
----
+```
 
 ## Author
 
 R Madhumitha
-
----
